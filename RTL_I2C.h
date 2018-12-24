@@ -167,6 +167,59 @@ uint8_t inline I2C_SendMessage(const uint8_t address, uint8_t const* pMessage, c
 /// This function executes the complete I2C protocol for sending a message over the
 /// I2C network. This method does not expect a response from the receiving device.
 //******************************************************************************
+uint8_t inline I2C_Request(TwoWire& twi, const uint8_t address, uint8_t* pResponse, size_t responseLength)
+{
+    auto bytesRead = twi.requestFrom(address, responseLength);
+
+    for (auto i = 0; i < bytesRead; i++)
+        if (i < responseLength) pResponse[i] = (uint8_t)twi.read();
+
+    auto statusCode = (bytesRead > 0) ? 0 : 4;
+
+    return statusCode;
+}
+
+
+// Same as above but uses the default I2C port (aka Wire).
+uint8_t inline I2C_Request(const uint8_t address, uint8_t* pResponse, size_t responseLength) 
+{ 
+    return I2C_Request(Wire, address, pResponse, responseLength); 
+}
+
+
+template <typename R>
+uint8_t inline I2C_Request(TwoWire& twi, const uint8_t address, R& responseData)
+{
+    return I2C_Request(twi, address, (uint8_t*)&responseData, sizeof(responseData));
+}
+
+
+// Same as above but uses the default I2C port (aka Wire).
+template <typename R>
+uint8_t inline I2C_Request(const uint8_t address, R& responseData)
+{
+    return I2C_Request(Wire, address, (uint8_t*)&responseData, sizeof(responseData));
+}
+
+
+//******************************************************************************
+/// Summary: Sends a complete message over the I2C network. No response is expected
+///          for the message.
+///
+/// Param: twi - A reference to a TwoWire object representing the I2C port to use.
+/// Param: address - The I2C address of the target device.
+/// Param: pMessage - A pointer to a buffer containing the message to send.
+/// Param: messageLength - The length of the message.
+///
+/// Returns: A status code indicating the result of the send operation. A return
+///          code of 0 (zero) indicates a successful send. A non-zero return code
+///          indicates a failure. See the Arduino reference for the TwoWire::endTransmission()
+///          function for a full description of I2C status codes.
+///
+/// Remarks:
+/// This function executes the complete I2C protocol for sending a message over the
+/// I2C network. This method does not expect a response from the receiving device.
+//******************************************************************************
 uint8_t inline I2C_SendMessage(TwoWire& twi, const uint8_t address, uint8_t const* pMessage, const uint8_t messageLength)
 {
     twi.beginTransmission(address);
