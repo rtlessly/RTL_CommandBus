@@ -4,9 +4,11 @@
 #ifndef _CommandListener_h_
 #define _CommandListener_h_
 
+#include <Wire.h>
 #include <RTL_StdLib.h>
 #include <RTL_I2C.h>
-#include <RTL_EventFramework.h>
+//#include <RTL_EventFramework.h>
+#include <RTL_TaskScheduler.h>
 #include "CommandProtocol.h"
 
 
@@ -32,7 +34,6 @@ class CommandListener : public EventSource, public IEventListener
     ***************************************************************************/
     protected: CommandListener(byte deviceID=0) : _myDeviceID(deviceID) 
     {
-        _id = "CommandListener";
     };
 
     /***************************************************************************
